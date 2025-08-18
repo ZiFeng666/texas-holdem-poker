@@ -978,7 +978,7 @@ def handle_create_table(data):
             emit('error', {'message': '玩家数据获取失败'})
             return
         
-        player = Player(player_id, nickname, player_data.get('chips', initial_chips))
+        player = Player(player_id, nickname, initial_chips)
         
         # 创建者自动加入房间
         if table.add_player(player) and db.join_table(table_id, player_id):
@@ -1142,8 +1142,8 @@ def handle_join_table(data):
             if not player_data:
                 emit('error', {'message': '玩家数据不存在'})
                 return
-            # 创建玩家对象
-            player = Player(player_id, nickname, player_data['chips'])
+            # 创建玩家对象 - 使用表格的初始筹码设置
+            player = Player(player_id, nickname, table.initial_chips)
             players[player_id] = player
             print(f"动态创建玩家对象: {nickname} (ID: {player_id})")
             # 将 has_helper 字段加入 player_sessions
@@ -2267,4 +2267,4 @@ if __name__ == '__main__':
         print("🎮 游戏已准备就绪！")
         print("⚙️ 自动维护已启动 (每3分钟快速维护，每小时深度维护)")
     
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True) 
+    socketio.run(app, host='0.0.0.0', port=8888, debug=True) 

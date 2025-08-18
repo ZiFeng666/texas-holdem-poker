@@ -282,29 +282,49 @@ class Table:
         from .bot import Bot
         import time
         
-        max_iterations = 20  # 增加最大迭代次数
+        max_iterations = 15  # 减少最大迭代次数防止死循环
         iterations = 0
         consecutive_no_action = 0  # 连续无动作计数
+        global_timeout = time.time() + 30  # 30秒全局超时保护
         
-        while iterations < max_iterations:
+        print(f"🤖 开始机器人处理 (最大{max_iterations}轮, 30秒超时)")
+        
+        while iterations < max_iterations and time.time() < global_timeout:
             iterations += 1
             had_action_this_round = False
+            
+            # 检查超时
+            if time.time() >= global_timeout:
+                print(f"⏰ 机器人处理超时，强制结束")
+                break
             
             # 获取当前应该行动的玩家
             current_player = self.get_current_player()
             
-            # 如果没有需要行动的玩家，检查游戏流程
+            # 如果没有需要行动的玩家，立即检查游戏流程
             if not current_player:
-                print("没有找到需要行动的玩家，检查游戏流程...")
+                print(f"🔍 第{iterations}轮：没有需要行动的玩家")
                 flow_result = self.process_game_flow()
-                if flow_result['hand_complete'] or flow_result['stage_changed']:
-                    print(f"游戏流程更新: {flow_result}")
-                    break
+                print(f"🎯 游戏流程检查结果: hand_complete={flow_result.get('hand_complete')}, stage_changed={flow_result.get('stage_changed')}")
+                
+                if flow_result.get('hand_complete'):
+                    print(f"🏆 手牌结束，停止机器人处理")
+                    return flow_result
+                elif flow_result.get('stage_changed'):
+                    print(f"📈 阶段变化，继续处理")
+                    consecutive_no_action = 0  # 重置计数
+                    continue
                 else:
-                    print("游戏流程无变化，结束机器人处理")
+                    print(f"⚠️ 无玩家行动且无流程变化")
                     consecutive_no_action += 1
-                    if consecutive_no_action >= 3:  # 连续3次无动作就退出
-                        print("连续多次无动作，强制结束处理")
+                    if consecutive_no_action >= 2:  # 减少到2次，更快响应
+                        print(f"💀 连续{consecutive_no_action}轮无变化，强制结束处理")
+                        # 尝试强制推进游戏流程
+                        print(f"🔧 尝试强制推进游戏...")
+                        force_result = self._force_advance_game_flow()
+                        if force_result and force_result.get('hand_complete'):
+                            print(f"🏆 强制推进导致手牌结束")
+                            return force_result
                         break
                     continue
             
@@ -1141,6 +1161,54 @@ class Table:
             print("投注回合未完成，等待更多玩家行动")
         
         return result
+
+    def _force_advance_game_flow(self):
+        """强制推进游戏流程 - 处理卡住情况"""
+        print(f"🚨 强制推进游戏流程...")
+        
+        # 检查是否所有能行动的玩家都已行动
+        playing_players = [p for p in self.players if p.status == PlayerStatus.PLAYING and p.chips > 0]
+        all_in_players = [p for p in self.players if p.status == PlayerStatus.ALL_IN]
+        folded_players = [p for p in self.players if p.status == PlayerStatus.FOLDED]
+        
+        print(f"  可行动玩家: {len(playing_players)}, 全下玩家: {len(all_in_players)}, 弃牌玩家: {len(folded_players)}")
+        
+        # 如果没有或只有1个可行动玩家，强制完成投注回合
+        if len(playing_players) <= 1:
+            print(f"  ✅ 强制标记投注回合完成")
+            
+            # 如果游戏阶段不是最终阶段，推进到下一阶段
+            if self.game_stage not in [GameStage.SHOWDOWN, GameStage.FINISHED]:
+                if self.advance_to_next_stage():
+                    print(f"  📈 强制推进到下一阶段: {self.game_stage.value}")
+                    return {'stage_changed': True, 'hand_complete': False}
+            
+            # 如果已经是最后阶段，强制结束手牌
+            if self.game_stage in [GameStage.RIVER, GameStage.SHOWDOWN]:
+                print(f"  🏆 强制结束手牌")
+                winner_result = self._determine_winner()
+                return {
+                    'hand_complete': True,
+                    'winner': winner_result.get('winner'),
+                    'showdown_info': winner_result
+                }
+        
+        # 检查是否所有可行动玩家都已全下
+        active_players = [p for p in self.players if p.status in [PlayerStatus.PLAYING, PlayerStatus.ALL_IN]]
+        if len(active_players) > 1 and len(playing_players) == 0:
+            print(f"  🎯 所有玩家都已全下，直接进入摊牌")
+            # 强制进入摊牌阶段
+            if self.game_stage != GameStage.SHOWDOWN:
+                self.game_stage = GameStage.SHOWDOWN
+            winner_result = self._determine_winner()
+            return {
+                'hand_complete': True,
+                'winner': winner_result.get('winner'),
+                'showdown_info': winner_result
+            }
+        
+        print(f"  ⚠️ 无法强制推进，维持当前状态")
+        return None
 
     def _get_action_description(self, action_type: PlayerAction, amount: int) -> str:
         """获取动作的中文描述"""
