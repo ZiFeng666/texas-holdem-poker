@@ -127,21 +127,23 @@ class Table:
         self.deck.reset()
         self.deck.shuffle()
         
-        # 清除所有玩家的庄家标记
-        for player in self.players:
-            player.is_dealer = False
-        
-        # 设置当前庄家
-        if len(active_players) > 0:
-            active_players[self.dealer_position].is_dealer = True
-            print(f"🎯 庄家: {active_players[self.dealer_position].nickname} (位置 {self.dealer_position})")
-        
         for player in active_players:
-            # 先重置玩家状态，再发牌
+            # 先重置玩家状态，再发牌（reset_for_new_hand 会清除庄家/盲注标记）
             player.reset_for_new_hand()
             player.status = PlayerStatus.PLAYING
             hole_cards = self.deck.deal_cards(2)
             player.deal_hole_cards(hole_cards)
+        
+        # 清除所有玩家的位置标记（保险，防止残留）
+        for player in self.players:
+            player.is_dealer = False
+            player.is_small_blind = False
+            player.is_big_blind = False
+        
+        # 设置当前庄家（必须在 reset 之后，否则标记会被重置）
+        if len(active_players) > 0:
+            active_players[self.dealer_position].is_dealer = True
+            print(f"🎯 庄家: {active_players[self.dealer_position].nickname} (位置 {self.dealer_position})")
         
         # 根据游戏模式收取初始下注
         if self.game_mode == "blinds":
@@ -149,6 +151,10 @@ class Table:
             if len(active_players) >= 2:
                 sb_player = active_players[0]
                 bb_player = active_players[1]
+                
+                # 设置小盲/大盲标记（供前端显示 SB/BB 徽章）
+                sb_player.is_small_blind = True
+                bb_player.is_big_blind = True
                 
                 sb_amount = sb_player.place_bet(self.small_blind)
                 bb_amount = bb_player.place_bet(self.big_blind)
