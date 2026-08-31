@@ -90,6 +90,8 @@ A full-featured, experience-rich online multiplayer Texas Hold'em poker game wit
 - **🔄 投票状态恢复** - 一局结束后刷新页面可恢复"开始下一轮"投票，已投票状态同步保留
 - **🔗 断线重连增强** - 刷新/跳转页面不再被移出房间；满员房间的成员可随时"进入房间"
 - **🤖 机器人思考节奏** - 每个机器人决策间隔 1 秒并逐步广播行动状态，节奏更真实
+- **🛡️ 机器人等级修复** - 从数据库重建机器人时优先使用已存等级，昵称兜底补全"至尊/无敌"等高级名字（此前"至尊5"会被错误降级为初级）
+- **⚡ 游戏稳定性** - 修复机器人补充处理改变下注额导致游戏卡死的问题（补充处理仅跟注补齐）；欠注时禁止过牌；修复 eventlet 未正确 patch 导致的服务器阻塞
 - **🎵 音乐提示优化** - 音乐文件缺失时静默运行，提示弹窗去重并支持"不再提示"
 
 ### 🚀 快速开始
@@ -253,6 +255,8 @@ This is a web-based real-time multiplayer Texas Hold'em poker game platform that
 - **🔄 Vote State Recovery** - Refreshing after a hand ends restores the "Start Next Round" vote, including your previous vote
 - **🔗 Reconnect Improvements** - Refreshing/navigating no longer removes you from the room; members can re-enter full rooms anytime
 - **🤖 Bot Thinking Pace** - Each bot takes a 1-second decision interval with per-step board updates for a natural pace
+- **🛡️ Bot Level Fix** - Bot levels are restored from the database on rebuild, with the nickname fallback covering "至尊/无敌" advanced names (previously "至尊5" could be wrongly rebuilt as a beginner)
+- **⚡ Game Stability** - Fixed a deadlock where supplementary bot actions changed the bet amount (supplementary processing now only calls to match); disallowed check while owing a bet; fixed server blocking caused by an unpatched eventlet
 - **🎵 Music Prompt Fix** - Silent mode when audio files are missing; deduplicated prompt with a "Don't ask again" option
 
 ### 🚀 Quick Start
