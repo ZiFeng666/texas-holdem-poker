@@ -3,6 +3,11 @@
 Texas Hold'em Poker Game Main Application
 """
 
+# ⚠️ 必须在导入其他库之前完成 eventlet monkey patch，
+# 否则 time.sleep 等调用会阻塞整个服务器（所有玩家连接卡死）
+import eventlet
+eventlet.monkey_patch()
+
 import uuid
 import time
 import re
@@ -10,7 +15,6 @@ import traceback
 from typing import Dict, List, Optional
 from flask import Flask, request, jsonify, render_template
 from flask_socketio import SocketIO, emit, join_room, leave_room, rooms
-import eventlet
 import threading
 import sqlite3
 from datetime import datetime
@@ -806,27 +810,16 @@ def handle_disconnect():
                         'active_tables': active_tables
                     })
             
-            # 立即从所有房间移除断线玩家并检查是否需要清理
-            tables_to_check = []
+            # 玩家断线：标记为断线状态，不移除玩家（30秒内可重连，页面跳转/刷新场景）
             for table_id, table in list(tables.items()):
-                if any(p.id == player_id for p in table.players):
-                    tables_to_check.append(table_id)
-                    # 立即从房间移除断线玩家
-                    table.remove_player(player_id)
-                    print(f"玩家 {nickname} 已从房间 {table.title} 中移除")
-            
-            # 对所有相关房间进行检查
-            for table_id in tables_to_check:
-                if table_id in tables:
-                    table = tables[table_id]
-                    # 现在检查剩余的人类玩家（不需要排除player_id，因为已经移除了）
-                    human_players = [p for p in table.players if not p.is_bot]
-                    if len(human_players) == 0:
-                        print(f"断线导致房间 {table.title} 无人类玩家，立即清理")
-                        check_and_cleanup_table(table_id)
-                    else:
-                        # 广播更新的房间状态
+                for player in table.players:
+                    if player.id == player_id:
+                        if player.status != PlayerStatus.BROKE:
+                            player.status = PlayerStatus.DISCONNECTED
+                            print(f"玩家 {nickname} 在房间 {table.title} 标记为断线")
+                        # 广播更新的房间状态（其他玩家看到"断线"标识）
                         socketio.emit('table_updated', table.get_table_state(), room=table_id)
+                        break
             
             socketio.start_background_task(remove_player_delayed)
             
@@ -1232,6 +1225,17 @@ def handle_join_table(data):
                 'table': table_state,
                 'reconnected': True
             })
+            
+            # 恢复断线玩家的状态（页面跳转/刷新后的重连）
+            table_player = table.get_player(player_id)
+            if table_player and table_player.status == PlayerStatus.DISCONNECTED:
+                if table_player.chips > 0:
+                    table_player.status = (PlayerStatus.WAITING if table.game_stage == GameStage.WAITING
+                                           else PlayerStatus.PLAYING)
+                    print(f"玩家 {nickname} 重连，状态恢复为 {table_player.status.value}")
+                else:
+                    table_player.status = PlayerStatus.BROKE
+                    print(f"玩家 {nickname} 重连，无筹码恢复为观察者")
             
             # 如果游戏正在进行且玩家有手牌，发送手牌
             table_player = table.get_player(player_id)
