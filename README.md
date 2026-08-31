@@ -34,9 +34,12 @@ A full-featured, experience-rich online multiplayer Texas Hold'em poker game wit
 - **🎵 沉浸式音效** - 智能背景音乐系统，根据游戏状态自动切换
 - **📱 响应式设计** - 适配桌面、平板和手机设备
 - **🔄 断线重连** - 网络断线后自动恢复游戏状态
+- **👤 玩家信息面板** - 每位玩家显示下注金额、本手累计投入，以及庄家/小盲/大盲徽章
+- **💥 房间解散** - 创建者可一键解散房间，所有玩家自动返回大厅
 
 #### 🧠 智能辅助
-- **📊 实时胜率计算** - 蒙特卡洛模拟计算当前手牌胜率
+- **📊 实时胜率计算** - 精确枚举剩余牌组合计算当前手牌对单对手胜率
+- **🔍 牌型分析** - 翻牌后实时分析：公共牌最佳牌型、对手可能牌型分布、我的当前牌型
 - **🃏 记牌助手** - 跟踪已出现牌面，显示剩余牌组信息
 - **📈 数据分析** - 详细的游戏统计和历史记录
 - **🎯 决策建议** - 基于概率的最优决策提示
@@ -72,10 +75,18 @@ A full-featured, experience-rich online multiplayer Texas Hold'em poker game wit
 - **🔌 Socket.IO** - 实时通信客户端
 - **🎵 Web Audio API** - 音频播放控制
 
+### 🆕 近期更新
+
+- **🔍 牌型分析面板** - 根据公共牌实时分析：公共牌最佳牌型、对手可能牌型分布（枚举全部组合）、我的当前牌型与单挑胜率
+- **👤 玩家信息增强** - 每名玩家显示下注金额、本手累计投入，以及庄家/小盲/大盲徽章
+- **💥 房间解散** - 创建者可在房间列表一键解散房间，房间内所有玩家自动返回大厅
+- **🔄 投票状态恢复** - 一局结束后刷新页面可恢复"开始下一轮"投票，已投票状态同步保留
+- **🎵 音乐提示优化** - 音乐文件缺失时静默运行，提示弹窗去重并支持"不再提示"
+
 ### 🚀 快速开始
 
 #### 环境要求
-- **Python 3.8+**
+- **Python 3.8+**（Python 3.13 需将 eventlet 升级至 0.37+：`pip install "eventlet>=0.37"`）
 - **现代浏览器** (Chrome 80+, Firefox 75+, Edge 80+, Safari 13+)
 
 #### 安装步骤
@@ -109,7 +120,7 @@ python app.py
 
 5. **开始游戏**
 ```
-浏览器访问: http://localhost:5000
+浏览器访问: http://localhost:8888
 ```
 
 ### 🎮 游戏指南
@@ -180,9 +191,12 @@ This is a web-based real-time multiplayer Texas Hold'em poker game platform that
 - **🎵 Immersive Audio** - Smart background music system that automatically switches based on game state
 - **📱 Responsive Design** - Compatible with desktop, tablet, and mobile devices
 - **🔄 Disconnect Reconnection** - Automatic game state recovery after network disconnection
+- **👤 Player Info Panel** - Each player shows current bet, total hand contribution, and Dealer/SB/BB badges
+- **💥 Room Dissolution** - The creator can dissolve a room with one click; all players return to the lobby
 
 #### 🧠 Intelligent Assistance
-- **📊 Real-time Win Rate Calculation** - Monte Carlo simulation for current hand win probability
+- **📊 Real-time Win Rate Calculation** - Exact enumeration of remaining card combinations for heads-up win probability
+- **🔍 Hand Analysis** - Real-time analysis after the flop: best board hand, opponent hand distribution, and your current hand
 - **🃏 Card Tracking Assistant** - Track revealed cards and display remaining deck information
 - **📈 Data Analysis** - Detailed game statistics and historical records
 - **🎯 Decision Suggestions** - Optimal decision tips based on probability
@@ -218,10 +232,18 @@ This is a web-based real-time multiplayer Texas Hold'em poker game platform that
 - **🔌 Socket.IO** - Real-time communication client
 - **🎵 Web Audio API** - Audio playback control
 
+### 🆕 Recent Updates
+
+- **🔍 Hand Analysis Panel** - Real-time board analysis: best board hand, opponent hand distribution (full enumeration), your current hand and heads-up win rate
+- **👤 Enhanced Player Info** - Current bet, total hand contribution, and Dealer/SB/BB badges for every player
+- **💥 Room Dissolution** - The creator can dissolve a room from the lobby; all players are returned to the lobby automatically
+- **🔄 Vote State Recovery** - Refreshing after a hand ends restores the "Start Next Round" vote, including your previous vote
+- **🎵 Music Prompt Fix** - Silent mode when audio files are missing; deduplicated prompt with a "Don't ask again" option
+
 ### 🚀 Quick Start
 
 #### Requirements
-- **Python 3.8+**
+- **Python 3.8+** (On Python 3.13, upgrade eventlet to 0.37+: `pip install "eventlet>=0.37"`)
 - **Modern Browser** (Chrome 80+, Firefox 75+, Edge 80+, Safari 13+)
 
 #### Installation Steps
@@ -255,7 +277,7 @@ python app.py
 
 5. **Start gaming**
 ```
-Visit in browser: http://localhost:5000
+Visit in browser: http://localhost:8888
 ```
 
 ### 🎮 Game Guide
@@ -318,7 +340,7 @@ python app.py
 pip install gunicorn
 
 # Start service
-gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:5000 app:app
+gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:8888 app:app
 ```
 
 ##### Nginx Configuration Example
@@ -328,13 +350,13 @@ server {
     server_name your-domain.com;
     
     location / {
-        proxy_pass http://127.0.0.1:5000;
+        proxy_pass http://127.0.0.1:8888;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
     
     location /socket.io/ {
-        proxy_pass http://127.0.0.1:5000;
+        proxy_pass http://127.0.0.1:8888;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
