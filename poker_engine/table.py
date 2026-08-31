@@ -147,10 +147,19 @@ class Table:
         
         # 根据游戏模式收取初始下注
         if self.game_mode == "blinds":
-            # 传统大小盲注模式
-            if len(active_players) >= 2:
-                sb_player = active_players[0]
-                bb_player = active_players[1]
+            # 传统大小盲注模式：庄家下一位=小盲，再下一位=大盲（随庄家轮换）
+            n = len(active_players)
+            if n >= 2:
+                dealer_idx = self.dealer_position % n
+                if n == 2:
+                    # 单挑局（heads-up）：庄家即小盲，另一人为大盲
+                    sb_index = dealer_idx
+                    bb_index = (dealer_idx + 1) % n
+                else:
+                    sb_index = (dealer_idx + 1) % n
+                    bb_index = (dealer_idx + 2) % n
+                sb_player = active_players[sb_index]
+                bb_player = active_players[bb_index]
                 
                 # 设置小盲/大盲标记（供前端显示 SB/BB 徽章）
                 sb_player.is_small_blind = True
@@ -165,7 +174,7 @@ class Table:
                 sb_player.has_acted = False  # 小盲注玩家还需要决定是否跟注
                 bb_player.has_acted = False  # 大盲注玩家有最后行动权
                 
-                print(f"🎮 大小盲注模式: 小盲${self.small_blind}, 大盲${self.big_blind}")
+                print(f"🎮 大小盲注模式: 庄家={active_players[dealer_idx].nickname}, 小盲={sb_player.nickname}, 大盲={bb_player.nickname}")
         
         elif self.game_mode == "ante":
             # 按比例下注模式 - 所有人都下注相同比例
@@ -809,19 +818,43 @@ class Table:
                         print(f"找到需要行动的玩家：{player.nickname} (庄家后第{i+1}位)")
                         return player
         else:
-            # blinds模式：按照原有逻辑（小盲、大盲顺序）
-            for i, player in enumerate(self.players):
-                print(f"检查位置{i}的玩家 {player.nickname}：状态={player.status.value}, 投注=${player.current_bet}, 已行动={player.has_acted}, 筹码=${player.chips}")
+            # blinds模式：按庄家-小盲-大盲-下家的标准顺序行动
+            active = [p for p in self.players if p.status == PlayerStatus.PLAYING and p.chips > 0]
+            if not active:
+                print("没有找到需要行动的玩家（无活跃玩家）")
+                return None
+            
+            # 找到庄家在活跃玩家中的位置
+            dealer_idx = 0
+            for i, p in enumerate(active):
+                if p.is_dealer:
+                    dealer_idx = i
+                    break
+            
+            n = len(active)
+            if n == 2:
+                # 单挑局（heads-up）：庄家（小盲）总是先行动
+                start = dealer_idx
+            elif self.game_stage == GameStage.PRE_FLOP:
+                # preflop：大盲下一位（UTG）先行动
+                start = (dealer_idx + 3) % n
+            else:
+                # 翻牌后：庄家下一位（小盲位）先行动
+                start = (dealer_idx + 1) % n
+            
+            for i in range(n):
+                player_index = (start + i) % n
+                player = active[player_index]
                 
-                # 只考虑还在游戏中的玩家（排除没有筹码的观察者）
-                if player.status == PlayerStatus.PLAYING and player.chips > 0:
-                    # 检查玩家是否需要行动
-                    needs_action = (not player.has_acted or 
-                                  (player.current_bet < self.current_bet and player.chips > 0))
-                    
-                    if needs_action:
-                        print(f"找到需要行动的玩家：{player.nickname}")
-                        return player
+                print(f"检查活跃玩家[{player_index}] {player.nickname}：状态={player.status.value}, 投注=${player.current_bet}, 已行动={player.has_acted}, 筹码=${player.chips}")
+                
+                # 检查玩家是否需要行动
+                needs_action = (not player.has_acted or 
+                              (player.current_bet < self.current_bet and player.chips > 0))
+                
+                if needs_action:
+                    print(f"找到需要行动的玩家：{player.nickname}")
+                    return player
         
         print("没有找到需要行动的玩家")
         return None
