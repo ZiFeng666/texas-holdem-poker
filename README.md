@@ -9,6 +9,10 @@ A full-featured, experience-rich online multiplayer Texas Hold'em poker game wit
 ![GitHub license](https://img.shields.io/github/license/stars1210JasonHe/texas-holdem-poker)
 ![Python version](https://img.shields.io/badge/python-3.8%2B-blue)
 
+> 🔱 **Fork 维护版**：本仓库由 [ZiFeng666](https://github.com/ZiFeng666) 在原作者 [Jason He](https://github.com/stars1210JasonHe) 的项目基础上维护，新增牌型分析、玩家信息增强、房间解散等功能，并持续修复问题。
+>
+> 🔱 **Fork maintained by** [ZiFeng666](https://github.com/ZiFeng666) on top of the original project by [Jason He](https://github.com/stars1210JasonHe) — adds hand analysis, enhanced player info, room dissolution and ongoing fixes.
+
 [中文](#中文版) | [English](#english-version)
 
 ---
@@ -408,5 +412,7 @@ If this project helps you, please consider giving us a ⭐ Star!
 **🃏 Enjoy the fun of Texas Hold'em and experience the charm of intelligent gaming! 🃏**
 
 Made with ❤️ by [Jason He](https://github.com/stars1210JasonHe)
+
+🛠️ Fork 维护 / Fork Maintainer: [ZiFeng666](https://github.com/ZiFeng666) · Zi_Feng666@126.com
 
 </div>
