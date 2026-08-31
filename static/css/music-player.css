@@ -175,6 +175,13 @@
     box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
 }
 
+/* "不再提示"次要按钮 */
+.notification-content button + button {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: none;
+    margin-left: 10px;
+}
+
 /* 音乐设置弹窗 */
 .music-settings-modal {
     position: fixed;

@@ -417,6 +417,7 @@ def get_tables():
                 'game_mode': table_data.get('game_mode', 'blinds'),
                 'ante_percentage': table_data.get('ante_percentage', 0.02),
                 'created_by': table_data['creator_nickname'],
+                'created_by_id': table_data['created_by'],
                 'created_at': table_data['created_at']
             }
             tables_data.append(table_info)
@@ -1207,10 +1208,20 @@ def handle_join_table(data):
                             player.status = PlayerStatus[db_player['status'].upper()]
                             table.add_player_at_position(player, db_player['position'])
             
+            table_state = table.get_table_state(player_id)
+            # 标记是否处于下一轮投票阶段（一局结束后刷新页面也能恢复投票按钮）
+            table_state['next_round_voting'] = (table.game_stage == GameStage.FINISHED)
+            if table_state['next_round_voting']:
+                human_players = [p for p in table.players if not p.is_bot]
+                votes = next_round_votes.get(table_id, {})
+                table_state['next_round_votes'] = len(votes)
+                table_state['next_round_required'] = len(human_players)
+                table_state['next_round_i_voted'] = player_id in votes
+
             emit('table_joined', {
                 'success': True,
                 'table_id': table_id,
-                'table': table.get_table_state(player_id),
+                'table': table_state,
                 'reconnected': True
             })
             
@@ -1660,6 +1671,79 @@ def handle_leave_table():
         
     except Exception as e:
         print(f"离开房间失败: {e}")
+
+
+@socketio.on('dissolve_table')
+def handle_dissolve_table(data):
+    """解散房间（仅创建者）"""
+    try:
+        session_id = request.sid
+        if session_id not in player_sessions:
+            emit('error', {'message': '请先登录'})
+            return
+        
+        table_id = data.get('table_id')
+        if not table_id or table_id not in tables:
+            emit('error', {'message': '房间不存在'})
+            return
+        
+        player_id = player_sessions[session_id]['player_id']
+        table = tables[table_id]
+        
+        # 校验创建者身份（以数据库记录为准）
+        db_table = db.get_table(table_id)
+        if not db_table or db_table.get('created_by') != player_id:
+            emit('error', {'message': '只有房间创建者才能解散房间'})
+            return
+        
+        title = table.title
+        print(f"💥 创建者解散房间: {title} ({table_id})")
+        
+        # 通知房间内所有玩家（含创建者自己）
+        socketio.emit('table_dissolved', {
+            'table_id': table_id,
+            'title': title,
+            'message': f'房间 "{title}" 已被创建者解散'
+        }, room=table_id)
+        
+        # 清理房间内所有玩家的会话绑定
+        for sid, tid in list(session_tables.items()):
+            if tid == table_id:
+                del session_tables[sid]
+        
+        # 关闭数据库记录（标记 is_active=0 并清理玩家记录）
+        db.close_specific_table(table_id)
+        
+        # 从内存中删除房间
+        del tables[table_id]
+        
+        # 清理相关记录
+        if table_id in next_round_votes:
+            del next_round_votes[table_id]
+        if table_id in table_sessions:
+            del table_sessions[table_id]
+        if table_id in current_hands:
+            del current_hands[table_id]
+        
+        # 广播大厅更新
+        socketio.emit('lobby_update')
+        socketio.emit('stats_update', {
+            'online_players': len(player_sessions),
+            'active_tables': len(tables)
+        })
+        
+        # 给创建者单独确认（如果创建者不在房间连接中）
+        emit('table_dissolved', {
+            'table_id': table_id,
+            'title': title,
+            'message': '房间已解散'
+        })
+        
+    except Exception as e:
+        print(f"解散房间失败: {e}")
+        import traceback
+        traceback.print_exc()
+        emit('error', {'message': '解散房间失败'})
 
 
 def check_and_cleanup_table(table_id):

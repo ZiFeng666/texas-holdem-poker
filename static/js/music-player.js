@@ -6,6 +6,8 @@ class MusicPlayer {
         this.currentTrack = null;
         this.position = 'top-right'; // 默认位置
         this.isVisible = true; // 控制面板是否可见
+        this.promptShown = false; // 当前页面是否已显示过播放提示
+        this.audioMissing = false; // 音乐文件是否缺失（缺失时静默，不再弹窗）
         this.tracks = {
             lobby: '/static/audio/lobby-music.mp3',
             table: '/static/audio/table-music.mp3',
@@ -253,7 +255,9 @@ class MusicPlayer {
                     console.log('🎵 背景音乐开始播放');
                 }).catch((error) => {
                     console.warn('🎵 自动播放被阻止:', error);
-                    this.showPlayButton();
+                    if (!this.audioMissing) {
+                        this.showPlayButton();
+                    }
                 });
             }
         }
@@ -336,6 +340,17 @@ class MusicPlayer {
     }
     
     showPlayButton() {
+        // 去重：每个页面最多提示一次
+        if (this.promptShown) return;
+        // 音乐文件缺失时提示无意义，不弹窗
+        if (this.audioMissing) return;
+        // 用户选择过"不再提示"则永久不再弹窗
+        if (localStorage.getItem('musicPromptDismissed') === 'true') return;
+        this.promptShown = true;
+        
+        // 移除可能残留的旧提示，避免多个弹窗叠加
+        document.querySelectorAll('.music-notification').forEach(n => n.remove());
+        
         // 显示明显的播放提示
         const notification = document.createElement('div');
         notification.className = 'music-notification';
@@ -344,6 +359,7 @@ class MusicPlayer {
                 <span>🎵</span>
                 <p>点击播放背景音乐</p>
                 <button onclick="musicPlayer.play(); this.parentElement.parentElement.remove();">播放</button>
+                <button onclick="localStorage.setItem('musicPromptDismissed','true'); this.parentElement.parentElement.remove();">不再提示</button>
             </div>
         `;
         document.body.appendChild(notification);
@@ -357,6 +373,8 @@ class MusicPlayer {
     
     handleError() {
         console.warn('🎵 音乐文件加载失败，使用静默模式');
+        // 标记音乐文件缺失：后续不再弹"点击播放背景音乐"提示
+        this.audioMissing = true;
         // 隐藏音乐控制面板或显示错误状态
         const panel = document.getElementById('music-control-panel');
         if (panel) {
