@@ -623,6 +623,15 @@ class Table:
                             print(f"🤖 {player.nickname} 因错误弃牌")
                     
                     player.has_acted = True
+                    
+                    # 每个机器人决策间隔1秒（与主循环一致）
+                    time.sleep(1.0)
+                    # 调用外部回调逐步广播桌面状态
+                    if self.on_bot_action:
+                        try:
+                            self.on_bot_action(player)
+                        except Exception as e:
+                            print(f"⚠️ 机器人行动回调失败: {e}")
         
         # 返回最终的游戏流程状态
         final_flow_result = self.process_game_flow()
