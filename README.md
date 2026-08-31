@@ -82,10 +82,14 @@ A full-featured, experience-rich online multiplayer Texas Hold'em poker game wit
 
 ### 🆕 近期更新
 
+- **♠️ 标准盲注轮换** - 小盲/大盲随庄家轮换（多人局：庄家下一位/下两位；单挑局：庄家即小盲），行动顺序同步轮转（翻牌前大盲下家先行动）
+- **🎚️ 下注金额滑块** - 下注/加注输入框旁新增滑块，范围自动适配（最小下注~筹码），拖动与手动输入双向联动
 - **🔍 牌型分析面板** - 根据公共牌实时分析：公共牌最佳牌型、对手可能牌型分布（枚举全部组合）、我的当前牌型与单挑胜率
-- **👤 玩家信息增强** - 每名玩家显示下注金额、本手累计投入，以及庄家/小盲/大盲徽章
+- **👤 玩家信息增强** - 每名玩家显示下注金额、本手累计投入，以及庄家/小盲/大盲徽章（修复徽章不显示问题）
 - **💥 房间解散** - 创建者可在房间列表一键解散房间，房间内所有玩家自动返回大厅
 - **🔄 投票状态恢复** - 一局结束后刷新页面可恢复"开始下一轮"投票，已投票状态同步保留
+- **🔗 断线重连增强** - 刷新/跳转页面不再被移出房间；满员房间的成员可随时"进入房间"
+- **🤖 机器人思考节奏** - 每个机器人决策间隔 1 秒并逐步广播行动状态，节奏更真实
 - **🎵 音乐提示优化** - 音乐文件缺失时静默运行，提示弹窗去重并支持"不再提示"
 
 ### 🚀 快速开始
@@ -133,7 +137,7 @@ python app.py
 #### 基础操作
 - **♠️ 过牌 (Check)** - 不下注，传递行动权
 - **💰 跟注 (Call)** - 跟进当前下注额
-- **📈 加注 (Raise/Bet)** - 增加下注金额
+- **📈 加注 (Raise/Bet)** - 增加下注金额（可拖动滑块快速调整）
 - **🗑️ 弃牌 (Fold)** - 放弃当前手牌
 - **🎯 全下 (All-in)** - 投入所有筹码
 
@@ -241,10 +245,14 @@ This is a web-based real-time multiplayer Texas Hold'em poker game platform that
 
 ### 🆕 Recent Updates
 
+- **♠️ Standard Blind Rotation** - SB/BB rotate with the dealer button (multiway: next/next-next seats; heads-up: dealer is the SB), with matching action order (UTG acts first preflop)
+- **🎚️ Bet Amount Slider** - A slider next to the bet/raise input, auto-ranged (min bet ~ chips), synced with manual input
 - **🔍 Hand Analysis Panel** - Real-time board analysis: best board hand, opponent hand distribution (full enumeration), your current hand and heads-up win rate
-- **👤 Enhanced Player Info** - Current bet, total hand contribution, and Dealer/SB/BB badges for every player
+- **👤 Enhanced Player Info** - Current bet, total hand contribution, and Dealer/SB/BB badges for every player (badge display fixed)
 - **💥 Room Dissolution** - The creator can dissolve a room from the lobby; all players are returned to the lobby automatically
 - **🔄 Vote State Recovery** - Refreshing after a hand ends restores the "Start Next Round" vote, including your previous vote
+- **🔗 Reconnect Improvements** - Refreshing/navigating no longer removes you from the room; members can re-enter full rooms anytime
+- **🤖 Bot Thinking Pace** - Each bot takes a 1-second decision interval with per-step board updates for a natural pace
 - **🎵 Music Prompt Fix** - Silent mode when audio files are missing; deduplicated prompt with a "Don't ask again" option
 
 ### 🚀 Quick Start
@@ -292,7 +300,7 @@ Visit in browser: http://localhost:8888
 #### Basic Operations
 - **♠️ Check** - No bet, pass action to next player
 - **💰 Call** - Match the current bet amount
-- **📈 Raise/Bet** - Increase the bet amount
+- **📈 Raise/Bet** - Increase the bet amount (use the slider for quick adjustment)
 - **🗑️ Fold** - Give up current hand
 - **🎯 All-in** - Bet all remaining chips
 
