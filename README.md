@@ -4,10 +4,11 @@
 
 A full-featured, experience-rich online multiplayer Texas Hold'em poker game with intelligent AI, real-time interaction, data analysis, and immersive audio experience.
 
-![GitHub stars](https://img.shields.io/github/stars/stars1210JasonHe/texas-holdem-poker?style=social)
-![GitHub forks](https://img.shields.io/github/forks/stars1210JasonHe/texas-holdem-poker?style=social)
-![GitHub license](https://img.shields.io/github/license/stars1210JasonHe/texas-holdem-poker)
+![GitHub stars](https://img.shields.io/github/stars/ZiFeng666/texas-holdem-poker?style=social)
+![GitHub forks](https://img.shields.io/github/forks/ZiFeng666/texas-holdem-poker?style=social)
+![GitHub license](https://img.shields.io/github/license/ZiFeng666/texas-holdem-poker)
 ![Python version](https://img.shields.io/badge/python-3.8%2B-blue)
+[![Upstream](https://img.shields.io/badge/Upstream-原作者%20Jason%20He-blue)](https://github.com/stars1210JasonHe/texas-holdem-poker)
 
 > 🔱 **Fork 维护版**：本仓库由 [ZiFeng666](https://github.com/ZiFeng666) 在原作者 [Jason He](https://github.com/stars1210JasonHe) 的项目基础上维护，新增牌型分析、玩家信息增强、房间解散等功能，并持续修复问题。
 >
@@ -97,7 +98,7 @@ A full-featured, experience-rich online multiplayer Texas Hold'em poker game wit
 
 1. **克隆项目**
 ```bash
-git clone https://github.com/stars1210JasonHe/texas-holdem-poker.git
+git clone https://github.com/ZiFeng666/texas-holdem-poker.git
 cd texas-holdem-poker
 ```
 
@@ -169,8 +170,10 @@ action-music.mp3   # 紧张时刻音乐
 
 ### 📞 联系方式
 
-- **项目主页**: [GitHub Repository](https://github.com/stars1210JasonHe/texas-holdem-poker)
-- **问题反馈**: [GitHub Issues](https://github.com/stars1210JasonHe/texas-holdem-poker/issues)
+- **Fork 仓库主页**: [ZiFeng666/texas-holdem-poker](https://github.com/ZiFeng666/texas-holdem-poker)
+- **问题反馈**: [GitHub Issues](https://github.com/ZiFeng666/texas-holdem-poker/issues)
+- **维护者邮箱**: Zi_Feng666@126.com
+- **上游原仓库**: [stars1210JasonHe/texas-holdem-poker](https://github.com/stars1210JasonHe/texas-holdem-poker)（原作者 [Jason He](https://github.com/stars1210JasonHe)）
 
 ---
 
@@ -254,7 +257,7 @@ This is a web-based real-time multiplayer Texas Hold'em poker game platform that
 
 1. **Clone the project**
 ```bash
-git clone https://github.com/stars1210JasonHe/texas-holdem-poker.git
+git clone https://github.com/ZiFeng666/texas-holdem-poker.git
 cd texas-holdem-poker
 ```
 
@@ -389,9 +392,10 @@ This project is based on the [MIT License](LICENSE) open source license.
 
 ### 📞 Contact
 
-- **Project Homepage**: [GitHub Repository](https://github.com/stars1210JasonHe/texas-holdem-poker)
-- **Issue Feedback**: [GitHub Issues](https://github.com/stars1210JasonHe/texas-holdem-poker/issues)
-- **Feature Suggestions**: [GitHub Discussions](https://github.com/stars1210JasonHe/texas-holdem-poker/discussions)
+- **Fork Repository**: [ZiFeng666/texas-holdem-poker](https://github.com/ZiFeng666/texas-holdem-poker)
+- **Issue Feedback**: [GitHub Issues](https://github.com/ZiFeng666/texas-holdem-poker/issues)
+- **Maintainer Email**: Zi_Feng666@126.com
+- **Upstream Repository**: [stars1210JasonHe/texas-holdem-poker](https://github.com/stars1210JasonHe/texas-holdem-poker) by [Jason He](https://github.com/stars1210JasonHe)
 
 ---
 
