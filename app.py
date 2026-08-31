@@ -400,6 +400,15 @@ def get_tables():
         # 从数据库获取活跃房间
         db_tables = db.get_all_active_tables()
         
+        # 获取请求者已加入的房间（用于大厅显示"进入房间"而不是"房间已满"）
+        player_id = request.args.get('player_id')
+        member_table_ids = set()
+        if player_id:
+            try:
+                member_table_ids = set(db.get_player_table_ids(player_id))
+            except Exception as e:
+                print(f"获取玩家房间列表失败: {e}")
+        
         # 转换为前端需要的格式
         tables_data = []
         for table_data in db_tables:
@@ -430,7 +439,8 @@ def get_tables():
                 'ante_percentage': table_data.get('ante_percentage', 0.02),
                 'created_by': table_data['creator_nickname'],
                 'created_by_id': table_data['created_by'],
-                'created_at': table_data['created_at']
+                'created_at': table_data['created_at'],
+                'is_member': table_id in member_table_ids
             }
             tables_data.append(table_info)
         
