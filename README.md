@@ -92,6 +92,7 @@ A full-featured, experience-rich online multiplayer Texas Hold'em poker game wit
 - **🤖 机器人思考节奏** - 每个机器人决策间隔 1 秒并逐步广播行动状态，节奏更真实
 - **🛡️ 机器人等级修复** - 从数据库重建机器人时优先使用已存等级，昵称兜底补全"至尊/无敌"等高级名字（此前"至尊5"会被错误降级为初级）
 - **⚡ 游戏稳定性** - 修复机器人补充处理改变下注额导致游戏卡死的问题（补充处理仅跟注补齐）；欠注时禁止过牌；修复 eventlet 未正确 patch 导致的服务器阻塞
+- **🌐 中英文界面** - 大厅一键切换中/英文，全局生效（主页/大厅/牌桌），语言偏好自动保存
 - **🎵 音乐提示优化** - 音乐文件缺失时静默运行，提示弹窗去重并支持"不再提示"
 
 ### 🚀 快速开始
@@ -257,6 +258,7 @@ This is a web-based real-time multiplayer Texas Hold'em poker game platform that
 - **🤖 Bot Thinking Pace** - Each bot takes a 1-second decision interval with per-step board updates for a natural pace
 - **🛡️ Bot Level Fix** - Bot levels are restored from the database on rebuild, with the nickname fallback covering "至尊/无敌" advanced names (previously "至尊5" could be wrongly rebuilt as a beginner)
 - **⚡ Game Stability** - Fixed a deadlock where supplementary bot actions changed the bet amount (supplementary processing now only calls to match); disallowed check while owing a bet; fixed server blocking caused by an unpatched eventlet
+- **🌐 Bilingual UI** - One-click language switch (Chinese/English) in the lobby, applied globally (home/lobby/table), preference auto-saved
 - **🎵 Music Prompt Fix** - Silent mode when audio files are missing; deduplicated prompt with a "Don't ask again" option
 
 ### 🚀 Quick Start
